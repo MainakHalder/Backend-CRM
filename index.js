@@ -286,6 +286,190 @@ app.get("/V1/leads/:id/comments", async (req, res) => {
   }
 });
 
+const getAllComments = async () => {
+  try {
+    const readComments = await Comments.find();
+    return readComments;
+  } catch (error) {
+    console.log("Error occured while fetching comments", error);
+  }
+};
+
+app.get("/V1/leads/comments", async () => {
+  try {
+    const readComments = await getAllComments();
+    if (readComments.length) {
+      res.status(200).json(readComments);
+    } else {
+      res.status(404).json({ error: "No comments exist" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while fetching comments: ${error}` });
+  }
+});
+
+const updateLeads = async (leadId, leadToUpdate) => {
+  try {
+    const updatedLeads = await Lead.findByIdAndUpdate(leadId, leadToUpdate, {
+      new: true,
+    })
+      .populate("salesAgent")
+      .populate("tags");
+    return updatedLeads;
+  } catch (error) {
+    console.log("Error occured while updating", error);
+  }
+};
+
+app.post("/V1/leads/:leadId", async (req, res) => {
+  try {
+    const leadsUpdated = await updateLeads(req.params.leadId, req.body);
+    if (leadsUpdated) {
+      res
+        .status(200)
+        .json({ message: "Lead updated successfully", lead: leadsUpdated });
+    } else {
+      res.status(404).json({ error: "Lead not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while updating leads: ${error}` });
+  }
+});
+
+const updateAgent = async (agentId, agentToUpdate) => {
+  try {
+    const updatedAgent = await SalesAgent.findByIdAndUpdate(
+      agentId,
+      agentToUpdate,
+      { new: true }
+    );
+    return updatedAgent;
+  } catch (error) {
+    console.log("Error occured while updating agents", error);
+  }
+};
+
+app.post("/V1/agents/:agentId", async (req, res) => {
+  try {
+    const updatedAgent = await updateAgent(req.params.agentId, req.body);
+    if (updatedAgent) {
+      res
+        .status(200)
+        .json({ message: "Agents updated successfully", Agent: updatedAgent });
+    } else {
+      res.status(404).json({ error: "Agent not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while updating agents: ${error}` });
+  }
+});
+
+const deleteLeads = async (leadId) => {
+  try {
+    const deletedLead = await Lead.findByIdAndDelete(leadId);
+    return deletedLead;
+  } catch (error) {
+    console.log("Error occured while deleting Leads", error);
+  }
+};
+
+app.delete("/V1/leads/:leadId", async (req, res) => {
+  try {
+    const deletedLead = await deleteLeads(req.params.leadId);
+    if (deletedLead) {
+      res
+        .status(200)
+        .json({ message: "Lead is deleted successfully", lead: deletedLead });
+    } else {
+      res.status(404).json({ error: "Lead not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while deleting leads: ${error}` });
+  }
+});
+
+const deleteAgent = async (agentId) => {
+  try {
+    const deletedAgent = await SalesAgent.findByIdAndDelete(agentId);
+    return deletedAgent;
+  } catch (error) {
+    console.log("Error occured while deleting agent", error);
+  }
+};
+
+app.delete("/V1/agents/:agentId", async (req, res) => {
+  try {
+    const deletedAgent = await deleteAgent(req.params.agentId);
+    if (deletedAgent) {
+      res
+        .status(200)
+        .json({ message: "Agent deleted successfully", agent: deletedAgent });
+    } else {
+      res.status(404).json({ error: "Agent not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while deleting agent: ${error}` });
+  }
+});
+
+const deleteComments = async (commentId) => {
+  try {
+    const deletedComments = await Comments.findByIdAndDelete(commentId);
+    return deletedComments;
+  } catch (error) {
+    console.log("Error occured while deleting comments", error);
+  }
+};
+
+app.delete("/V1/comments/:commentId", async (req, res) => {
+  try {
+    const deletedComments = await deleteComments(req.params.commentId);
+    if (deletedComments) {
+      res.status(200).json({ message: "Comment deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Comments not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while deleting comments: ${error}` });
+  }
+});
+
+const deleteTags = async (tagId) => {
+  try {
+    const deletedTags = await Tags.findByIdAndDelete(tagId);
+    return deletedTags;
+  } catch (error) {
+    console.log("Error occured while deleting Tags: ", error);
+  }
+};
+
+app.delete("/V1/tags/:tagId", async (req, res) => {
+  try {
+    const deletedTags = await deleteTags(req.params.tagId);
+    if (deleteTags) {
+      res.status(200).json({ message: "The tag is deleted sucessfully" });
+    } else {
+      res.status(404).json({ error: "Tag not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while deleting the tag: ${error}` });
+  }
+});
+
 const PORT = process.env.PORT || 7000;
 app.listen(PORT, () => {
   console.log("The server is running on port: ", PORT);
