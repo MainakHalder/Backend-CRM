@@ -260,6 +260,34 @@ app.get("/V1/report/last-week", async (req, res) => {
   }
 });
 
+const readPipeline = async () => {
+  try {
+    const pipelineCount = await Lead.countDocuments({
+      status: { $ne: "Closed" },
+    });
+    return pipelineCount;
+  } catch (error) {
+    console.log("Error occured while fetching pipeline count", error);
+  }
+};
+
+app.get("/V1/report/pipeline", async (req, res) => {
+  try {
+    const pipelineCount = await readPipeline();
+    if (pipelineCount) {
+      res.status(200).json({
+        totalPipelineLeads: pipelineCount,
+      });
+    } else {
+      res.status(404).json({ error: "Pipeline count not found" });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while fetching pipeline count: ${error}` });
+  }
+});
+
 const getComments = async (leadId) => {
   try {
     const readComments = await Comments.find({ lead: leadId })
