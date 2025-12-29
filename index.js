@@ -398,6 +398,34 @@ app.post("/V1/agents/:agentId", async (req, res) => {
   }
 });
 
+const updateComments = async (commentId, updatedComment) => {
+  try {
+    const updatedComments = await Comments.findByIdAndUpdate(
+      commentId,
+      updatedComment,
+      { new: true }
+    );
+    return updatedComments;
+  } catch (error) {
+    console.log(`Error occured while updating comments: ${error}`);
+  }
+};
+
+app.post("/V1/comments/:commentsId", async (req, res) => {
+  try {
+    const updateComment = await updateComments(req.params.commentsId, req.body);
+    if (updateComment) {
+      res.status(200).json(updateComment);
+    } else {
+      res.status(404).json({ error: `No comments found` });
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: `Error occured while updating comments: ${error}` });
+  }
+});
+
 const deleteLeads = async (leadId) => {
   try {
     const deletedLead = await Lead.findByIdAndDelete(leadId);
