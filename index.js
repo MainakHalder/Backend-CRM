@@ -491,7 +491,10 @@ app.delete("/V1/comments/:commentId", async (req, res) => {
   try {
     const deletedComments = await deleteComments(req.params.commentId);
     if (deletedComments) {
-      res.status(200).json({ message: "Comment deleted successfully" });
+      res.status(200).json({
+        message: "Comment deleted successfully",
+        comment: deletedComments,
+      });
     } else {
       res.status(404).json({ error: "Comments not found" });
     }
