@@ -413,7 +413,9 @@ const updateComments = async (commentId, updatedComment) => {
 
 app.post("/V1/comments/:commentsId", async (req, res) => {
   try {
-    const updateComment = await updateComments(req.params.commentsId, req.body);
+    const updateComment = await updateComments(req.params.commentsId, req.body)
+      .populate("lead")
+      .populate("author");
     if (updateComment) {
       res.status(200).json(updateComment);
     } else {
